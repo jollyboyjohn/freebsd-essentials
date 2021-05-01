@@ -1,0 +1,20 @@
+--- sys/dev/usb/wlan/if_run.c.orig	2020-10-21 23:08:22.459123000 +0100
++++ sys/dev/usb/wlan/if_run.c	2020-10-21 14:04:51.596569000 +0100
+@@ -168,6 +168,7 @@
+     RUN_DEV(ASUS,		RT3070_1),
+     RUN_DEV(ASUS,		USBN66),
+     RUN_DEV(ASUS,		USB_N53),
++    RUN_DEV(ASUS,		USBN14),
+     RUN_DEV(ASUS2,		USBN11),
+     RUN_DEV(AZUREWAVE,		RT2870_1),
+     RUN_DEV(AZUREWAVE,		RT2870_2),
+--- sys/dev/usb/usbdevs.orig	2020-10-21 23:03:06.223643000 +0100
++++ sys/dev/usb/usbdevs	2020-10-21 23:01:40.295711000 +0100
+@@ -1266,6 +1266,7 @@
+ product ASUS USBN10NANO		0x17ba	USB-N10 Nano
+ product ASUS USBAC51		0x17d1	USB-AC51
+ product ASUS USBAC56		0x17d2	USB-AC56
++product ASUS USBN14		0x17e8	USB-N14
+ product ASUS A730W		0x4202	ASUS MyPal A730W
+ product ASUS P535		0x420f	ASUS P535 PDA
+ product ASUS GMSC		0x422f	ASUS Generic Mass Storage

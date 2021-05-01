@@ -1,0 +1,13 @@
+/etc/rc.conf:
+	cloned_interfaces="bridge0 tap0"
+	ifconfig_bridge0="inet 192.168.56.1/24 addm tap0 up"
+	kld_list="nmdm vmm"
+	pf_enable="YES"
+
+/etc/pf.conf:
+	ext_if="wlan0"
+	virt_net="192.168.56.0/24"
+	scrub all
+	nat on $ext_if from $virt_net to any -> ($ext_if)
+	rdr on $ext_if proto tcp from any to any port 8000 -> 192.168.56.2
+	pass log all

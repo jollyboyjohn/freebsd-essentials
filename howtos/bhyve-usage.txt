@@ -1,0 +1,18 @@
+### Creation
+# zfs create -V16G -o volmode=dev zroot/debian0
+# vi device.map
+(hd0) /dev/zvol/zroot/debian0
+(cd0) /root/bhyve/debian-10.6.0-amd64-netinst.iso
+
+### Install
+# grub-bhyve -m device.map -r cd0 -M 1024M debian
+# bhyve -A -H -P -s 0:0,hostbridge -s 1:0,lpc -s 2:0,virtio-net,tap0 -s 3:0,virtio-blk,/dev/zvol/zroot/debian0 -s 4:0,ahci-cd,/root/bhyve/debian-10.6.0-amd64-netinst.iso -l com1,stdio -c 4 -m 1024M debian
+# bhyvectl --destroy --vm=debian
+
+### Run
+# grub-bhyve -m device.map -r hd0,msdos1 -M 4096M debian
+# bhyve -A -H -P -s 0:0,hostbridge -s 1:0,lpc -s 2:0,virtio-net,tap0 -s 3:0,virtio-blk,/dev/zvol/zroot/debian0 -l com1,/dev/nmdm0A -c 4 -m 4096M debian
+# bhyvectl --destroy --vm=debian
+
+### List
+# ls -la /dev/vmm

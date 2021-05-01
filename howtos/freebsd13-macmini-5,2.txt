@@ -1,0 +1,132 @@
+FreeBSD 13 on a Apple Mac Mini Mid-2011 (5,2)
+
+Short guide to get the Mac Mini up and running for a desktop
+
+Known issues:
+- Onboard wireless doesn't work
+    - use a USB wireless adapter instead
+- ATI Radeon GPU will not work if booted via EFI:
+    - MBR: multi-screen, acceleration
+    - EFI: slow graphics, single screen via EFI Framebuffer
+
+--------
+INSTALL IMAGE
+
+Write image to device:
+$ xzcat image.img.gz | sudo dd of=/dev/xxx bs=64k
+
+To boot the image:
+- Hold down Alt/Option key on boot
+- Select the orange disk 
+    - "Windows" = MBR
+    - "efi" = UEFI boot
+
+--------
+INSTALLATION
+Keymap:
+- United States / United Kingdom (MacBook)
+
+Optional System Components:
+- ports [for software]
+- src [for kernel compilation]
+
+Partitioning:
+- Partition Scheme: GPT (UEFI) [Allows ZFS to work from boot]
+OR
+- Partition Scheme: MBR (BIOS) [Radeon GPU works if EFI not used]
+
+Services: 
+- powerd [Intel Speedstep CPU control]
+
+Login:
+- Groups: wheel video [for su and graphics]
+- Shell: csh [gives tab autocomplete]
+
+--------
+FIX AUTO-REBOOT
+
+Disable EFI triggering reboot on power-down:
+# vi /etc/sysctl.conf
+    hw.efi.poweroff=0
+
+--------
+KERNEL CUSTOMISING
+
+Source directory:
+# cd /usr/src
+
+Make changes (example of adding an unlisted WiFi adapter):
+# vi sys/dev/usb/usbdevs
+    product ASUS USBN14	0x17e8 USB-N14
+# vi sys/dev/usb/wlan/if_run.c
+    RUN_DEV(ASUS, USBN14),
+
+Build and install kernel:
+# make buildkernel KERNCONF=GENERIC
+# make installkernel KERNCONF=GENERIC
+
+--------
+EXTERNAL WIRELESS
+
+List active wireless devices / modules:
+% sysctl net.wlan.devices
+
+Set up wireless devices:
+% vi /etc/rc.conf
+    wlans_run0="wlan0"
+    ifconfig_wlan0="WPA SYNCDHCP"
+
+Network setup:
+% vi /etc/wpa_supplicant.conf
+    network={
+        ssid="ssidgoeshere"
+        psk="passwordgoeshere"
+    }
+
+--------
+GRAPHICS
+
+Install Xorg:
+# pkg install xorg
+
+To use the EFI framebuffer for display:
+# vi /usr/local/etc/X11/xorg.conf.d/scfb.conf
+    Section "Device"
+        Identifier "Card0"
+        Driver "scfb"
+    EndSection
+
+Otherwise, use the Radeon:
+# pkg install drm-fbsd13-kmod
+# vi /etc/rc.conf
+    kld_list="radeonkms"
+
+To test:
+# startx
+
+--------
+SOUND
+
+List sound devices outputs:
+% cat /dev/sndstat
+
+Set optical out as default:
+# vi /etc/sysctl.conf
+    hw.snd.default_unit=2
+
+--------
+CONTROLLING FANS
+
+Load Apple System Management Controller to monitor temp, control fans:
+# vi /boot/loader.conf
+    asmc_load="YES"
+
+Look at variables:
+# sysctl dev.asmc
+
+--------
+FIX AUTO-REBOOT
+
+If booted via EFI, a reboot may be triggered at shutdown. To prevent:
+# vi /etc/sysctl.conf
+    hw.efi.poweroff=0
